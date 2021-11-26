@@ -290,6 +290,7 @@ function calculateLiveliness(predictions:AnnotatedPrediction[]) {
 
   let leftGap = distance(leftEyeLowerMiddle, leftEyeUpperMiddle);
   let rightGap = distance(rightEyeLowerMiddle, rightEyeUpperMiddle);
+  console.log(leftGap, rightGap);
   let eyeStateClosed = (leftGap < 5 && rightGap < 5);
   if(eyeStateClosed && state.currentStatus.lastEyeStateOpen) {
     state.currentStatus.blinkCount += 1;
