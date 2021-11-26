@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATHR • Liveliness</title>
+
+  <!-- Load three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.106.2/build/three.min.js"></script>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      position: relative;
+      height: 100%;
+      width: 100%;
+      font-family: 'Cabin', Arial, Helvetica, sans-serif;
+      font-size: 16px;
+    }
+
+    #loading {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      height: 100%;
+      width: 100%;
+      background-color: rgba(0, 0, 0, .7);
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    #loading .spinner {
+      border: 3px solid #fff;
+      border-top: 3px dotted #fff;
+      border-radius: 50%;
+      height: 5rem;
+      width: 5rem;
+
+      animation: spin 2s linear 0s infinite;
+    }
+
+    #loading .msg {
+      color: #fff;
+      font-size: 2rem;
+    }
+
+    #main {
+      position: relative;
+      height: 100%;
+      width: 100%;
+    }
+
+    .container {
+      display: flex;
+      height: 100%;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    button {
+      padding: 5px 15px;
+      font-size: 1.1rem;
+      background-color: rgb(0, 136, 255);
+      color: #fff;
+      border: 1px solid #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    button:hover {
+      color: rgb(0, 136, 255);
+      background-color: #fff;
+      border: 1px solid rgb(0, 136, 255);
+    }
+
+    .canvas-wrapper {
+      display: inline-block;
+      vertical-align: top;
+    }
+
+    #splash {
+      display: flex;
+    }
+
+    #stage {
+      display: none;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    ul.validations {
+      list-style: none;
+      gap: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    ul.validations li {
+      display: grid;
+      grid-template-columns: auto 10px;
+      gap: 10px;
+    }
+
+    ul.validations .icon {
+      background-image: url(/static/images/cross.png);
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+
+    ul.validations .done .icon {
+      background-image: url(/static/images/tick.png);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="msg">Loading ...</div>
+  </div>
+  <div id="main">
+    <div class="container" id="splash">
+      <h2 class="title">
+        ATHR • Face Liveliness
+      </h2>
+      <div>
+        <button id="start">Begin</button>
+      </div>
+    </div>
+    <div class="container" id="stage" style="flex-direction: row;">
+      <div class="canvas-wrapper">
+        <canvas id="output"></canvas>
+        <video id="video" playsinline style="
+          -webkit-transform: scaleX(-1);
+          transform: scaleX(-1);
+          visibility: hidden;
+          width: auto;
+          height: auto;
+          position: fixed;
+          top: 0;
+          left: 0;
+          z-index: -10;
+          ">
+        </video>
+      </div>
+      <div class="status">
+        <ul class="validations">
+          <li><span>Blink 3x times</span><span class="icon"></span></li>
+          <li><span>Validation 2</span><span class="icon"></span></li>
+          <li><span>Validation 3</span><span class="icon"></span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+<script src="static/js/script.js"></script>
+
+</html>

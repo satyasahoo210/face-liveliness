@@ -1,0 +1,41 @@
+{
+  "name": "face_liveliness",
+  "version": "1.0.0",
+  "description": "Calculate liveliness of a face from video",
+  "main": "lib",
+  "license": "MIT",
+  "author": {
+    "name": "Satyabrata Sahoo",
+    "email": "satyasahoo210@gmail.com"
+  },
+  "engines": {
+    "node": "^14.0.0",
+    "yarn": ">= 0.18.0"
+  },
+  "scripts": {
+    "build": "webpack",
+    "dev": "webpack --watch"
+  },
+  "dependencies": {
+    "@tensorflow-models/face-landmarks-detection": "^0.0.3",
+    "@tensorflow/tfjs-backend-cpu": "^3.11.0",
+    "@tensorflow/tfjs-backend-wasm": "^3.11.0",
+    "@tensorflow/tfjs-backend-webgl": "^3.11.0",
+    "@tensorflow/tfjs-converter": "^3.11.0",
+    "@tensorflow/tfjs-core": "^3.11.0",
+    "dat.gui": "^0.7.7",
+    "stats.js": "^0.17.0"
+  },
+  "devDependencies": {
+    "@types/dat.gui": "^0.7.7",
+    "@types/stats.js": "^0.17.0",
+    "@typescript-eslint/eslint-plugin": "^4.15.1",
+    "@typescript-eslint/parser": "^4.15.1",
+    "shx": "^0.3.3",
+    "ts-loader": "^9.2.6",
+    "ts-node-dev": "^1.1.6",
+    "typescript": "^4.3.2",
+    "webpack": "^5.64.0",
+    "webpack-cli": "^4.9.1"
+  }
+}
