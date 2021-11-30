@@ -21,12 +21,6 @@ const RED = '#FF2C35';
 const BLUE = '#157AB3';
 let stopRendering = false;
 
-function isMobile() {
-  const isAndroid = /Android/i.test(navigator.userAgent);
-  const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  return isAndroid || isiOS;
-}
-
 function distance(a: number[], b: number[]) {
   return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
 }
@@ -53,9 +47,6 @@ let model: MediaPipeFaceMesh,
     canvas: HTMLCanvasElement,
     rafID: number;
 
-const VIDEO_SIZE = 500;
-const mobile = isMobile();
-
 const stats = new Stats();
 const state = {
   backend: 'webgl',
@@ -76,16 +67,11 @@ async function setupCamera() {
     'audio': false,
     'video': {
       // 'deviceId': '26ac4c7879bc217604ddb8618960818bb9a7f5ed972a585f0d844c17b8f3c128',
-      facingMode: 'user',
-      // Only setting the video to a specified size in order to accommodate a
-      // point cloud, so on mobile devices accept the default size.
-      // width: mobile ? undefined : VIDEO_SIZE,
-      // height: mobile ? undefined : VIDEO_SIZE
+      facingMode: 'user'
     },
   });
   video.srcObject = stream;
 
-  // video.src = 'static/videos/VID_20211112_070051.mp4'
   return new Promise((resolve) => {
     video.onloadedmetadata = () => {
       resolve(video);
@@ -294,11 +280,12 @@ function calculateLiveliness(predictions:AnnotatedPrediction[]) {
   let eyeStateClosed = (leftGap < 5 && rightGap < 5);
   if(eyeStateClosed && state.currentStatus.lastEyeStateOpen) {
     state.currentStatus.blinkCount += 1;
+    (document.querySelectorAll('.validations>li li')[state.currentStatus.blinkCount - 1].querySelector('input') as HTMLInputElement).checked = true;
   }
   state.currentStatus.lastEyeStateOpen = !eyeStateClosed;
 
   if(state.currentStatus.blinkCount >= state.validation.blinkCount) {
-    (document.querySelectorAll('.validations li')[0] as Element).className = 'done';
+    (document.querySelectorAll('.validations>li')[0] as Element).className = 'done';
   }
 }
 

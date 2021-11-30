@@ -110,7 +110,7 @@
       flex-direction: column;
     }
 
-    ul.validations li {
+    ul.validations>li {
       display: grid;
       grid-template-columns: auto 10px;
       gap: 10px;
@@ -162,7 +162,14 @@
       </div>
       <div class="status">
         <ul class="validations">
-          <li><span>Blink 3x times</span><span class="icon"></span></li>
+          <li>
+            <ul>
+              <label><span>Blink 3x times</span><span class="icon"></span></label>
+                <li><input type="checkbox" /> Blink 1</li>
+                <li><input type="checkbox" /> Blink 2</li>
+                <li><input type="checkbox" /> Blink 3</li>
+            </ul>
+          </li>
         </ul>
       </div>
     </div>
