@@ -11,8 +11,7 @@ import { AnnotatedPrediction, MediaPipeFaceMesh } from '@tensorflow-models/face-
 import { Coord2D, Coords3D } from '@tensorflow-models/face-landmarks-detection/dist/mediapipe-facemesh/util';
 
 tfjsWasm.setWasmPaths(
-    `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${
-        tfjsWasm.version_wasm}/dist/`);
+  `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`);
 
 const NUM_KEYPOINTS = 468;
 const NUM_IRIS_KEYPOINTS = 5;
@@ -40,12 +39,12 @@ function drawPath(ctx: CanvasRenderingContext2D, points: number[][], closePath: 
 }
 
 let model: MediaPipeFaceMesh,
-    ctx: CanvasRenderingContext2D,
-    videoWidth: number,
-    videoHeight: number,
-    video: HTMLVideoElement,
-    canvas: HTMLCanvasElement,
-    rafID: number;
+  ctx: CanvasRenderingContext2D,
+  videoWidth: number,
+  videoHeight: number,
+  video: HTMLVideoElement,
+  canvas: HTMLCanvasElement,
+  rafID: number;
 
 const stats = new Stats();
 const state = {
@@ -57,6 +56,14 @@ const state = {
   currentStatus: {
     blinkCount: 0,
     lastEyeStateOpen: true
+  },
+  face: {
+    topLeft: [0, 0] as Coord2D,
+    bottomRight: [0, 0] as Coord2D
+  },
+  eyeGap: {
+    left: [] as number[],
+    right: [] as number[]
   }
 };
 
@@ -86,7 +93,7 @@ async function renderPrediction() {
 
   stats.begin();
 
-  const predictions:AnnotatedPrediction[] = await model.estimateFaces({
+  const predictions: AnnotatedPrediction[] = await model.estimateFaces({
     input: video,
     returnTensors: false,
     flipHorizontal: false,
@@ -97,7 +104,7 @@ async function renderPrediction() {
   window.debug && console.log(predictions)
 
   ctx.drawImage(
-      video, 0, 0, videoWidth, videoHeight, 0, 0, canvas.width, canvas.height);
+    video, 0, 0, videoWidth, videoHeight, 0, 0, canvas.width, canvas.height);
 
 
   if (predictions.length > 0) {
@@ -105,7 +112,7 @@ async function renderPrediction() {
     predictions.forEach(prediction => {
       const topLeft = prediction.boundingBox.topLeft as Coord2D;
       const bottomRight = prediction.boundingBox.bottomRight as Coord2D;
-      const keypoints:Coords3D = prediction.scaledMesh as Coords3D;
+      const keypoints: Coords3D = prediction.scaledMesh as Coords3D;
 
       // Bounding Box
       ctx.strokeStyle = GREEN;
@@ -113,94 +120,83 @@ async function renderPrediction() {
       ctx.rect(topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]);
       ctx.stroke();
 
-      ctx.strokeStyle = RED;
-      // @ts-ignore
-      let leftEyeLower = prediction.annotations.leftEyeLower0, leftEyeUpper = prediction.annotations.leftEyeUpper0;
-      // @ts-ignore
-      let rightEyeLower = prediction.annotations.rightEyeLower0, rightEyeUpper = prediction.annotations.rightEyeUpper0;
+      // ctx.strokeStyle = RED;
+      // // @ts-ignore
+      // let leftEyeLower = prediction.annotations.leftEyeLower0, leftEyeUpper = prediction.annotations.leftEyeUpper0;
+      // // @ts-ignore
+      // let rightEyeLower = prediction.annotations.rightEyeLower0, rightEyeUpper = prediction.annotations.rightEyeUpper0;
 
-      let leftEyeLowerMiddle = leftEyeLower[Math.floor(leftEyeLower.length/2)]
-      let leftEyeUpperMiddle = leftEyeUpper[Math.floor(leftEyeUpper.length/2)]
-
-      let rightEyeLowerMiddle = rightEyeLower[Math.floor(rightEyeLower.length/2)]
-      let rightEyeUpperMiddle = rightEyeUpper[Math.floor(rightEyeUpper.length/2)]
-
-      let leftGap = distance(leftEyeLowerMiddle, leftEyeUpperMiddle);
-      let rightGap = distance(rightEyeLowerMiddle, rightEyeUpperMiddle);
-      // console.log('Left: ', leftGap > 5 ? 'open' : 'closed')
-      // console.log('Right: ', rightGap > 5 ? 'open' : 'closed')
-
-      drawPath(ctx, leftEyeUpper, false)
-      drawPath(ctx, leftEyeLower, false)
-      drawPath(ctx, rightEyeUpper, false)
-      drawPath(ctx, rightEyeLower, false)
+      // drawPath(ctx, leftEyeUpper, false)
+      // drawPath(ctx, leftEyeLower, false)
+      // drawPath(ctx, rightEyeUpper, false)
+      // drawPath(ctx, rightEyeLower, false)
 
 
-      if (keypoints.length > NUM_KEYPOINTS) {
-        ctx.strokeStyle = RED;
-        ctx.lineWidth = 1;
+      // if (keypoints.length > NUM_KEYPOINTS) {
+      //   ctx.strokeStyle = RED;
+      //   ctx.lineWidth = 1;
 
-        const leftCenter = keypoints[NUM_KEYPOINTS];
-        const leftDiameterY = distance(
-            keypoints[NUM_KEYPOINTS + 4], keypoints[NUM_KEYPOINTS + 2]);
-        const leftDiameterX = distance(
-            keypoints[NUM_KEYPOINTS + 3], keypoints[NUM_KEYPOINTS + 1]);
+      //   const leftCenter = keypoints[NUM_KEYPOINTS];
+      //   const leftDiameterY = distance(
+      //     keypoints[NUM_KEYPOINTS + 4], keypoints[NUM_KEYPOINTS + 2]);
+      //   const leftDiameterX = distance(
+      //     keypoints[NUM_KEYPOINTS + 3], keypoints[NUM_KEYPOINTS + 1]);
 
-        ctx.beginPath();
-        ctx.ellipse(
-            leftCenter[0], leftCenter[1], leftDiameterX / 2, leftDiameterY / 2,
-            0, 0, 2 * Math.PI);
-        ctx.stroke();
+      //   ctx.beginPath();
+      //   ctx.ellipse(
+      //     leftCenter[0], leftCenter[1], leftDiameterX / 2, leftDiameterY / 2,
+      //     0, 0, 2 * Math.PI);
+      //   ctx.stroke();
 
-        if (keypoints.length > NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS) {
-          const rightCenter = keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS];
-          const rightDiameterY = distance(
-              keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 2],
-              keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 4]);
-          const rightDiameterX = distance(
-              keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 3],
-              keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 1]);
+      // if (keypoints.length > NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS) {
+      //   const rightCenter = keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS];
+      //   const rightDiameterY = distance(
+      //     keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 2],
+      //     keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 4]);
+      //   const rightDiameterX = distance(
+      //     keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 3],
+      //     keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 1]);
 
-          ctx.beginPath();
-          ctx.ellipse(
-              rightCenter[0], rightCenter[1], rightDiameterX / 2,
-              rightDiameterY / 2, 0, 0, 2 * Math.PI);
-          ctx.stroke();
-        }
-      }
+      //   ctx.beginPath();
+      //   ctx.ellipse(
+      //     rightCenter[0], rightCenter[1], rightDiameterX / 2,
+      //     rightDiameterY / 2, 0, 0, 2 * Math.PI);
+      //   ctx.stroke();
+      // }
+      // }
 
-      if(true) {
-        ctx.strokeStyle = BLUE;
-        ctx.lineWidth = 1;
+      // if (true) {
+      //   ctx.strokeStyle = BLUE;
+      //   ctx.lineWidth = 1;
 
-        const leftCenter = keypoints[NUM_KEYPOINTS];
-        const leftDiameterY = distance(
-            keypoints[NUM_KEYPOINTS + 4], keypoints[NUM_KEYPOINTS + 2]);
-        const leftDiameterX = distance(
-            keypoints[NUM_KEYPOINTS + 3], keypoints[NUM_KEYPOINTS + 1]);
+      //   const leftCenter = keypoints[NUM_KEYPOINTS];
+      //   const leftDiameterY = distance(
+      //     keypoints[NUM_KEYPOINTS + 4], keypoints[NUM_KEYPOINTS + 2]);
+      //   const leftDiameterX = distance(
+      //     keypoints[NUM_KEYPOINTS + 3], keypoints[NUM_KEYPOINTS + 1]);
 
-        ctx.beginPath();
-        ctx.ellipse(
-            leftCenter[0], leftCenter[1], leftDiameterX / 2, leftDiameterY / 2,
-            0, 0, 2 * Math.PI);
-        ctx.stroke();
+      //   ctx.beginPath();
+      //   ctx.ellipse(
+      //     leftCenter[0], leftCenter[1], leftDiameterX / 2, leftDiameterY / 2,
+      //     0, 0, 2 * Math.PI);
+      //   ctx.stroke();
 
-        if (keypoints.length > NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS) {
-          const rightCenter = keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS];
-          const rightDiameterY = distance(
-              keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 2],
-              keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 4]);
-          const rightDiameterX = distance(
-              keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 3],
-              keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 1]);
+      //   if (keypoints.length > NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS) {
+      //     const rightCenter = keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS];
+      //     const rightDiameterY = distance(
+      //       keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 2],
+      //       keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 4]);
+      //     const rightDiameterX = distance(
+      //       keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 3],
+      //       keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 1]);
 
-          ctx.beginPath();
-          ctx.ellipse(
-              rightCenter[0], rightCenter[1], rightDiameterX / 2,
-              rightDiameterY / 2, 0, 0, 2 * Math.PI);
-          ctx.stroke();
-        }
-      }
+      //     ctx.beginPath();
+      //     ctx.ellipse(
+      //       rightCenter[0], rightCenter[1], rightDiameterX / 2,
+      //       rightDiameterY / 2, 0, 0, 2 * Math.PI);
+      //     ctx.stroke();
+      //   }
+      // }
     });
   }
 
@@ -239,15 +235,15 @@ async function main() {
 
   loading('Loading model');
   model = await faceLandmarksDetection.load(
-      faceLandmarksDetection.SupportedPackages.mediapipeFacemesh,
-      {maxFaces: state.maxFaces});
-      loading(false);
+    faceLandmarksDetection.SupportedPackages.mediapipeFacemesh,
+    { maxFaces: state.maxFaces });
+  loading(false);
   renderPrediction();
 };
 
-function loading(msgOrShow: string | boolean='Loading...') {
+function loading(msgOrShow: string | boolean = 'Loading...') {
   const loadingScreen = document.getElementById('loading');
-  if(!msgOrShow) {
+  if (!msgOrShow) {
     loadingScreen?.style.setProperty('display', 'none');
   } else {
     loadingScreen?.style.setProperty('display', 'flex');
@@ -256,8 +252,8 @@ function loading(msgOrShow: string | boolean='Loading...') {
   }
 }
 
-function calculateLiveliness(predictions:AnnotatedPrediction[]) {
-  if(predictions.length > 1) {
+function calculateLiveliness(predictions: AnnotatedPrediction[]) {
+  if (predictions.length > 1) {
     console.log('Multiple persons present')
     return;
   }
@@ -268,35 +264,158 @@ function calculateLiveliness(predictions:AnnotatedPrediction[]) {
   // @ts-ignore
   let rightEyeLower: Coords3D = prediction.annotations.rightEyeLower0, rightEyeUpper: Coords3D = prediction.annotations.rightEyeUpper0;
 
-  let leftEyeLowerMiddle = leftEyeLower[Math.floor(leftEyeLower.length/2)]
-  let leftEyeUpperMiddle = leftEyeUpper[Math.floor(leftEyeUpper.length/2)]
+  let leftEyeLowerMiddle = leftEyeLower[Math.floor(leftEyeLower.length / 2)]
+  let leftEyeUpperMiddle = leftEyeUpper[Math.floor(leftEyeUpper.length / 2)]
 
-  let rightEyeLowerMiddle = rightEyeLower[Math.floor(rightEyeLower.length/2)]
-  let rightEyeUpperMiddle = rightEyeUpper[Math.floor(rightEyeUpper.length/2)]
+  let rightEyeLowerMiddle = rightEyeLower[Math.floor(rightEyeLower.length / 2)]
+  let rightEyeUpperMiddle = rightEyeUpper[Math.floor(rightEyeUpper.length / 2)]
 
   let leftGap = distance(leftEyeLowerMiddle, leftEyeUpperMiddle);
   let rightGap = distance(rightEyeLowerMiddle, rightEyeUpperMiddle);
-  console.log(leftGap, rightGap);
-  let eyeStateClosed = (leftGap < 5 && rightGap < 5);
-  if(eyeStateClosed && state.currentStatus.lastEyeStateOpen) {
+
+  state.eyeGap.left.push(leftGap);
+  state.eyeGap.right.push(rightGap);
+
+  if (state.eyeGap.left.length > 10) {
+    state.eyeGap.left.splice(0, 1)
+  }
+
+  if (state.eyeGap.right.length > 10) {
+    state.eyeGap.right.splice(0, 1)
+  }
+
+  let leftAvgGap = state.eyeGap.left.reduce((a, c) => a + c) / state.eyeGap.left.length
+  let rightAvgGap = state.eyeGap.right.reduce((a, c) => a + c) / state.eyeGap.right.length
+
+  let leftDiff = leftAvgGap - leftGap;
+  let rightDiff = rightAvgGap - rightGap;
+
+  let eyeStateClosed = (leftDiff > 5 && rightDiff > 5);
+
+  // console.log(eyeStateClosed, leftDiff, rightDiff);
+  if (document.querySelectorAll('.validations>li li')[state.currentStatus.blinkCount] && eyeStateClosed && state.currentStatus.lastEyeStateOpen) {
     state.currentStatus.blinkCount += 1;
     (document.querySelectorAll('.validations>li li')[state.currentStatus.blinkCount - 1].querySelector('input') as HTMLInputElement).checked = true;
   }
   state.currentStatus.lastEyeStateOpen = !eyeStateClosed;
 
-  if(state.currentStatus.blinkCount >= state.validation.blinkCount) {
+  if (state.currentStatus.blinkCount >= state.validation.blinkCount) {
     (document.querySelectorAll('.validations>li')[0] as Element).className = 'done';
   }
+
+  state.face.topLeft = prediction.boundingBox.topLeft as Coord2D;
+  state.face.bottomRight = prediction.boundingBox.bottomRight as Coord2D;
 }
 
-(function() {
+(function () {
   const splashScreen = document.getElementById('splash');
   const stageScreen = document.getElementById('stage');
   const startButton = document.getElementById('start');
+  const liveFaceNextButton = document.getElementById('liveface-next') as HTMLButtonElement;
+  const imageFile = document.getElementById('image2') as HTMLInputElement;
+
+  const faceMatch = document.getElementById('faceMatch') as HTMLElement;
+  const ocr = document.getElementById('ocr') as HTMLElement;
+
+  imageFile.onchange = function (ev: Event) {
+    if (imageFile.files?.length as number > 0) {
+      liveFaceNextButton.disabled = false;
+    }
+  }
 
   startButton?.addEventListener('click', () => {
     splashScreen?.style.setProperty('display', 'none');
     stageScreen?.style.setProperty('display', 'flex');
     main();
   });
+  liveFaceNextButton?.addEventListener('click', () => {
+    let { topLeft, bottomRight } = state.face
+    let faceImage = ctx.getImageData(topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]);
+
+    let canvas = document.createElement('canvas');
+    let _ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+    canvas.width = faceImage.width;
+    canvas.height = faceImage.height;
+    _ctx.putImageData(faceImage, 0, 0);
+
+    let base64 = canvas.toDataURL('image/jpeg');
+    console.log(base64)
+    let file = dataURLtoFile(base64, 'face.jpg')
+
+    document.body.appendChild(canvas)
+    // match
+
+    let data = new FormData();
+    data.append('image', file, file.name);
+
+    request('http://13.127.66.134:5000/upload', 'POST', function () {
+      console.log(this)
+      if (this.readyState == 4 && this.status == 200) {
+        console.log(this.response)
+        let res = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
+        const { path: img_1 } = res;
+
+        file = (imageFile.files as FileList)[0]
+        let data2 = new FormData();
+        data2.append('image', file, file.name);
+        request('http://13.127.66.134:5000/upload', 'POST', function () {
+          let res2 = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
+          const { path: img_2 } = res2;
+
+          let data3 = new FormData();
+          data3.append('img_1', img_1);
+          data3.append('img_2', img_2);
+          request('http://13.127.66.134:5000/face_match', 'POST', function () {
+            let res3 = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
+            // console.log(res3)
+            faceMatch.innerText = `Face Match: ${res3.face_match}`
+
+            let data4 = new FormData();
+            data4.append('img_1', img_2);
+            request('http://13.127.66.134:5000/ocr', 'POST', function () {
+              let res4 = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
+              // console.log(res4)
+              ocr.innerText = JSON.stringify(res4, null, 2);
+            }, data4)
+          }, data3)
+        }, data2)
+
+        // const { path: img_2 } = res.data;
+        // let data = new FormData();
+        // data.append('img_1', img_1);
+        // data.append('img_2', img_2);
+
+        // 'http://13.127.66.134:5000/face_match'
+      }
+    }, data)
+
+  });
 })();
+
+const dataURLtoFile = (dataurl: string, filename: string) => {
+  let arr = dataurl.split(','),
+    mime = (arr[0].match(/:(.*?);/) as RegExpMatchArray)[1],
+    bstr = atob(arr[1]),
+    n = bstr.length,
+    u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+};
+
+const request = (
+  url: string | URL,
+  method = "POST",
+  cb: ((this: XMLHttpRequest, ev: Event) => any) | null,
+  data: string | Document | ArrayBufferView | ArrayBuffer | Blob | FormData | null | undefined
+) => {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = cb;
+  xhttp.open(method, url, true);
+  // xhttp.setRequestHeader("Content-type", "multipart/form-data");
+  xhttp.setRequestHeader("Accept", 'application/json');
+  xhttp.setRequestHeader('Accept-Language', 'en-US,en;q=0.8');
+  xhttp.send(data);
+  return xhttp;
+}

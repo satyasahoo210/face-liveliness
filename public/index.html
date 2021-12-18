@@ -112,8 +112,16 @@
 
     ul.validations>li {
       display: grid;
-      grid-template-columns: auto 10px;
+      grid-template-rows: auto auto;
       gap: 10px;
+    }
+
+    ul.validations>li .next {
+      display: none;
+    }
+
+    ul.validations>li.done .next {
+      display: block;
     }
 
     ul.validations .icon {
@@ -169,8 +177,16 @@
                 <li><input type="checkbox" /> Blink 2</li>
                 <li><input type="checkbox" /> Blink 3</li>
             </ul>
+            <div class="next">
+              <input type="file" name="image" id="image2">
+              <button id="liveface-next" disabled="disabled">Next</button>
+            </div>
           </li>
         </ul>
+        <div>
+          <span id="faceMatch"></span>
+          <pre id="ocr"></pre>
+        </div>
       </div>
     </div>
   </div>
