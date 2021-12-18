@@ -339,7 +339,6 @@ function calculateLiveliness(predictions: AnnotatedPrediction[]) {
     _ctx.putImageData(faceImage, 0, 0);
 
     let base64 = canvas.toDataURL('image/jpeg');
-    console.log(base64)
     let file = dataURLtoFile(base64, 'face.jpg')
 
     document.body.appendChild(canvas)
@@ -349,9 +348,7 @@ function calculateLiveliness(predictions: AnnotatedPrediction[]) {
     data.append('image', file, file.name);
 
     request('http://13.127.66.134:5000/upload', 'POST', function () {
-      console.log(this)
       if (this.readyState == 4 && this.status == 200) {
-        console.log(this.response)
         let res = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
         const { path: img_1 } = res;
 
