@@ -347,7 +347,7 @@ function calculateLiveliness(predictions: AnnotatedPrediction[]) {
     let data = new FormData();
     data.append('image', file, file.name);
 
-    request('http://13.127.66.134:5000/upload', 'POST', function () {
+    request('https://ankitpitroda.com:5000/upload', 'POST', function () {
       if (this.readyState == 4 && this.status == 200) {
         let res = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
         const { path: img_1 } = res;
@@ -355,34 +355,27 @@ function calculateLiveliness(predictions: AnnotatedPrediction[]) {
         file = (imageFile.files as FileList)[0]
         let data2 = new FormData();
         data2.append('image', file, file.name);
-        request('http://13.127.66.134:5000/upload', 'POST', function () {
+        request('https://ankitpitroda.com:5000/upload', 'POST', function () {
           let res2 = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
           const { path: img_2 } = res2;
 
           let data3 = new FormData();
           data3.append('img_1', img_1);
           data3.append('img_2', img_2);
-          request('http://13.127.66.134:5000/face_match', 'POST', function () {
+          request('https://ankitpitroda.com:5000/face_match', 'POST', function () {
             let res3 = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
             // console.log(res3)
             faceMatch.innerText = `Face Match: ${res3.face_match}`
 
             let data4 = new FormData();
             data4.append('img_1', img_2);
-            request('http://13.127.66.134:5000/ocr', 'POST', function () {
+            request('https://ankitpitroda.com:5000/ocr', 'POST', function () {
               let res4 = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
               // console.log(res4)
               ocr.innerText = JSON.stringify(res4, null, 2);
             }, data4)
           }, data3)
         }, data2)
-
-        // const { path: img_2 } = res.data;
-        // let data = new FormData();
-        // data.append('img_1', img_1);
-        // data.append('img_2', img_2);
-
-        // 'http://13.127.66.134:5000/face_match'
       }
     }, data)
 
