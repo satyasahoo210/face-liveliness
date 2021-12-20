@@ -115,10 +115,10 @@ async function renderPrediction() {
       const keypoints: Coords3D = prediction.scaledMesh as Coords3D;
 
       // Bounding Box
-      ctx.strokeStyle = GREEN;
-      ctx.beginPath();
-      ctx.rect(topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]);
-      ctx.stroke();
+      // ctx.strokeStyle = GREEN;
+      // ctx.beginPath();
+      // ctx.rect(topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]);
+      // ctx.stroke();
 
       // ctx.strokeStyle = RED;
       // // @ts-ignore
@@ -339,45 +339,46 @@ function calculateLiveliness(predictions: AnnotatedPrediction[]) {
     // _ctx.putImageData(faceImage, 0, 0);
 
     let base64 = canvas.toDataURL('image/jpeg');
+    console.log(base64)
     let file = dataURLtoFile(base64, 'face.jpg')
 
-    document.body.appendChild(canvas)
+    // document.body.appendChild(canvas)
     // match
 
     let data = new FormData();
     data.append('image', file, file.name);
 
-    request('https://ankitpitroda.com:5000/upload', 'POST', function () {
-      if (this.readyState == 4 && this.status == 200) {
-        let res = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
-        const { path: img_1 } = res;
+    // request('https://ankitpitroda.com:5000/upload', 'POST', function () {
+    //   if (this.readyState == 4 && this.status == 200) {
+    //     let res = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
+    //     const { path: img_1 } = res;
 
-        file = (imageFile.files as FileList)[0]
-        let data2 = new FormData();
-        data2.append('image', file, file.name);
-        request('https://ankitpitroda.com:5000/upload', 'POST', function () {
-          let res2 = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
-          const { path: img_2 } = res2;
+    //     file = (imageFile.files as FileList)[0]
+    //     let data2 = new FormData();
+    //     data2.append('image', file, file.name);
+    //     request('https://ankitpitroda.com:5000/upload', 'POST', function () {
+    //       let res2 = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
+    //       const { path: img_2 } = res2;
 
-          let data3 = new FormData();
-          data3.append('img_1', img_1);
-          data3.append('img_2', img_2);
-          request('https://ankitpitroda.com:5000/face_match', 'POST', function () {
-            let res3 = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
-            // console.log(res3)
-            faceMatch.innerText = `Face Match: ${res3.face_match}`
+    //       let data3 = new FormData();
+    //       data3.append('img_1', img_1);
+    //       data3.append('img_2', img_2);
+    //       request('https://ankitpitroda.com:5000/face_match', 'POST', function () {
+    //         let res3 = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
+    //         // console.log(res3)
+    //         faceMatch.innerText = `Face Match: ${res3.face_match}`
 
-            let data4 = new FormData();
-            data4.append('img_1', img_2);
-            request('https://ankitpitroda.com:5000/ocr', 'POST', function () {
-              let res4 = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
-              // console.log(res4)
-              ocr.innerText = JSON.stringify(res4, null, 2);
-            }, data4)
-          }, data3)
-        }, data2)
-      }
-    }, data)
+    //         let data4 = new FormData();
+    //         data4.append('img_1', img_2);
+    //         request('https://ankitpitroda.com:5000/ocr', 'POST', function () {
+    //           let res4 = typeof this.response === 'string' ? JSON.parse(this.response) : this.response
+    //           // console.log(res4)
+    //           ocr.innerText = JSON.stringify(res4, null, 2);
+    //         }, data4)
+    //       }, data3)
+    //     }, data2)
+    //   }
+    // }, data)
 
   });
 })();
