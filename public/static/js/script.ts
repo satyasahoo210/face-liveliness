@@ -329,14 +329,14 @@ function calculateLiveliness(predictions: AnnotatedPrediction[]) {
     main();
   });
   liveFaceNextButton?.addEventListener('click', () => {
-    let { topLeft, bottomRight } = state.face
-    let faceImage = ctx.getImageData(topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]);
+    // let { topLeft, bottomRight } = state.face
+    // let faceImage = ctx.getImageData(topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]);
 
-    let canvas = document.createElement('canvas');
-    let _ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-    canvas.width = faceImage.width;
-    canvas.height = faceImage.height;
-    _ctx.putImageData(faceImage, 0, 0);
+    // let canvas = document.createElement('canvas');
+    // let _ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+    // canvas.width = faceImage.width;
+    // canvas.height = faceImage.height;
+    // _ctx.putImageData(faceImage, 0, 0);
 
     let base64 = canvas.toDataURL('image/jpeg');
     let file = dataURLtoFile(base64, 'face.jpg')
