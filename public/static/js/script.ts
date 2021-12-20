@@ -339,7 +339,6 @@ function calculateLiveliness(predictions: AnnotatedPrediction[]) {
     // _ctx.putImageData(faceImage, 0, 0);
 
     let base64 = canvas.toDataURL('image/jpeg');
-    console.log(base64)
     let file = dataURLtoFile(base64, 'face.jpg')
 
     // document.body.appendChild(canvas)
